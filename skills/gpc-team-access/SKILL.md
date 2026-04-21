@@ -1,47 +1,38 @@
 ---
 name: gpc-team-access
-description: Manage team member access, roles, and permissions for Google Play Console using gpc. Use when granting or revoking developer access.
+description: Manage Play Console users, app grants, roles, and revocations using gpc. Use when granting or revoking developer access.
 ---
 
-# Team Access Management
+# Team Access
 
-Use this skill when managing team member access, roles, and permissions.
+Use this skill for `users` workflows.
 
-## List team members
+## List users
 
-```bash
-gpc users list --package com.example.app
-gpc users list --package com.example.app -o table
-```
-
-## Grant access
+`gpc users list` does not require an app package:
 
 ```bash
-gpc users grant --email developer@example.com --role releaseManager --package com.example.app
+gpc users list
+gpc users list -o table
 ```
 
-### Available roles
+## Grant and revoke app access
 
-| Role | Description |
-|------|-------------|
-| `admin` | Full access to all features |
-| `releaseManager` | Manage releases, tracks, and builds |
-| `appOwner` | App-level ownership and settings |
-
-## Revoke access
+Grant and revoke are package-specific:
 
 ```bash
-gpc users revoke --email developer@example.com --package com.example.app
+gpc users grant --email developer@example.com --role releaseManager
+gpc users revoke --email developer@example.com --confirm
 ```
+
+Supported role values:
+- `admin`
+- `releaseManager`
+- `appOwner`
 
 ## Agent behavior
 
-- List current users before granting or revoking access.
-- Confirm with user before revoking access (irreversible for that session).
-- Use the least-privilege role that matches the need.
-
-## Notes
-
-- Access is managed per-app via the package name.
-- Changes take effect immediately.
-- Service account access is separate from user access.
+- List current users before changing access.
+- Use the least-privilege role that satisfies the request.
+- Require explicit approval before revoking access.
+- Do not claim every `users` command needs `--package`; only grant and revoke do.

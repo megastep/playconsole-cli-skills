@@ -1,95 +1,56 @@
 ---
 name: gpc-build-lifecycle
-description: Manage Android app bundles, APKs, build processing, and debug symbol uploads using gpc. Use when uploading builds, checking build status, or uploading ProGuard mappings.
+description: Manage Android app bundles, legacy APKs, build processing, and deobfuscation uploads using gpc. Use when uploading builds, checking processing state, or uploading mapping and symbol files.
 ---
 
 # Build Lifecycle
 
-Use this skill when uploading builds, waiting for processing, managing APKs/bundles, or uploading deobfuscation files.
+Use this skill for artifact upload, processing checks, and crash symbolication inputs.
 
-## Bundles (AAB)
-
-### Upload bundle
+## Bundles
 
 ```bash
-gpc bundles upload --file app.aab --track internal --package com.example.app
+gpc bundles upload --file app.aab --track internal
+gpc bundles list
+gpc bundles find --version-code 42
+gpc bundles wait --version-code 42 --timeout 10m --interval 15s
 ```
 
-### List uploaded bundles
+Edit submission control:
 
 ```bash
-gpc bundles list --package com.example.app
+gpc bundles upload --file app.aab --track production --edit-mode=stage
+gpc bundles upload --file app.aab --track production --edit-mode=open
 ```
 
-### Find bundle by version code
+## APKs
+
+`apks` still exists for legacy flows, but prefer bundles for new work.
 
 ```bash
-gpc bundles find --version-code 42 --package com.example.app
+gpc apks upload --file app.apk --track internal
+gpc apks list
 ```
 
-### Wait for processing
+## Deobfuscation
 
 ```bash
-gpc bundles wait --version-code 42 --package com.example.app
-gpc bundles wait --version-code 42 --timeout 600 --interval 30 --package com.example.app
+gpc deobfuscation upload --version-code 42 --file mapping.txt --type proguard
+gpc deobfuscation upload --version-code 42 --file symbols.zip --type native-code
 ```
 
-## APKs (legacy)
-
-### Upload APK
+## Typical CI flow
 
 ```bash
-gpc apks upload --file app.apk --package com.example.app
-```
-
-### List APKs
-
-```bash
-gpc apks list --package com.example.app
-```
-
-## Deobfuscation files
-
-### Upload ProGuard mapping
-
-```bash
-gpc deobfuscation upload --version-code 42 --file mapping.txt --type proguard --package com.example.app
-```
-
-### Upload native debug symbols
-
-```bash
-gpc deobfuscation upload --version-code 42 --file symbols.zip --type native-code --package com.example.app
-```
-
-## CI/CD build pipeline
-
-Typical CI flow:
-
-```bash
-# 1. Upload bundle
-gpc bundles upload --file app.aab --track internal --commit --package com.example.app
-
-# 2. Wait for processing
-gpc bundles wait --version-code $VERSION_CODE --timeout 600 --package com.example.app
-
-# 3. Upload ProGuard mapping for crash symbolication
-gpc deobfuscation upload --version-code $VERSION_CODE --file mapping.txt --type proguard --package com.example.app
-
-# 4. Promote to beta
-gpc tracks promote --from internal --to beta --package com.example.app
+gpc bundles upload --file app.aab --track internal
+gpc bundles wait --version-code 42 --timeout 10m
+gpc deobfuscation upload --version-code 42 --file mapping.txt --type proguard
+gpc tracks promote --from internal --to beta
 ```
 
 ## Agent behavior
 
-- Always use AAB format over APK (APK upload is deprecated).
-- Upload deobfuscation files immediately after build upload.
-- Use `gpc bundles wait` in CI to block until processing completes.
-- Show bundle list after upload to confirm success.
-
-## Notes
-
-- AAB is required for new apps; APK support is for legacy apps.
-- ProGuard mappings enable readable crash stacks in Android Vitals.
-- Native debug symbols enable symbolicated native crash reports.
-- See `gpc-release-flow` skill for track promotion after upload.
+- Prefer AAB unless the user explicitly needs APK.
+- Upload mapping or native symbols immediately after the matching version is available.
+- Use `gpc bundles wait` in CI when later steps depend on Play processing finishing.
+- Use duration syntax like `10m` or `30s` for wait flags.

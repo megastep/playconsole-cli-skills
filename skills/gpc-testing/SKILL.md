@@ -1,95 +1,53 @@
 ---
 name: gpc-testing
-description: Manage beta testing, internal test builds, tester groups, and internal app sharing using gpc. Use when setting up or managing testing workflows.
+description: Manage testing tracks, testers, tester groups, and internal app sharing using gpc. Use when setting up or operating Play testing workflows.
 ---
 
-# Testing & Beta Management
+# Testing
 
-Use this skill when managing testers, tester groups, internal test builds, or internal app sharing.
+Use this skill for internal releases, tester assignment, and internal app sharing.
 
-## Internal test builds
-
-### List internal test builds
+## Internal testing
 
 ```bash
-gpc testing internal list --package com.example.app
+gpc testing internal list
+gpc bundles upload --file app.aab --track internal
+gpc bundles wait --version-code 42
 ```
 
-### Upload for internal sharing
+## Internal app sharing
+
+`internal-sharing upload` accepts either `.apk` or `.aab`:
 
 ```bash
-gpc testing internal-sharing upload --file app.aab --package com.example.app
+gpc testing internal-sharing upload --file app.aab
 ```
 
 ## Testers
 
-### List testers on a track
-
 ```bash
-gpc testing testers list --track beta --package com.example.app
+gpc testing testers list --track beta
+gpc testing testers add --track beta --emails "qa@example.com,pm@example.com"
+gpc testing testers add --track beta --emails-file testers.txt
+gpc testing testers remove --track beta --emails "qa@example.com"
 ```
 
-### Add tester by email
+Tester changes can use edit submission control:
 
 ```bash
-gpc testing testers add --track beta --email tester@example.com --package com.example.app
-```
-
-### Add testers from file
-
-```bash
-gpc testing testers add --track beta --file testers.csv --package com.example.app
-```
-
-### Remove tester
-
-```bash
-gpc testing testers remove --track beta --email tester@example.com --package com.example.app
+gpc testing testers add --track beta --emails-file testers.txt --edit-mode=stage
 ```
 
 ## Tester groups
 
-### List tester groups
-
 ```bash
-gpc testing tester-groups list --package com.example.app
+gpc testing tester-groups list
 ```
 
-## Typical beta workflow
-
-1. Upload build to internal track:
-```bash
-gpc bundles upload --file app.aab --track internal --package com.example.app
-```
-
-2. Wait for processing:
-```bash
-gpc bundles wait --version-code 42 --package com.example.app
-```
-
-3. Add testers:
-```bash
-gpc testing testers add --track internal --email qa@example.com --package com.example.app
-```
-
-4. Promote to beta when ready:
-```bash
-gpc tracks promote --from internal --to beta --package com.example.app
-```
-
-5. Add external testers:
-```bash
-gpc testing testers add --track beta --file beta-testers.csv --package com.example.app
-```
+The CLI treats tester groups as informational only; management still happens through Google Groups.
 
 ## Agent behavior
 
-- Confirm tester additions on production tracks.
-- Show current tester list before bulk operations.
-- Use internal track for initial testing, beta for wider distribution.
-
-## Notes
-
-- Internal app sharing generates a direct download link (no review required).
-- Testers CSV should contain one email per line.
-- Use `gpc-release-flow` skill for promoting builds between tracks.
+- Use `--emails` or `--emails-file`; do not invent singular `--email` flags.
+- Use internal app sharing for fast distribution outside the normal track flow.
+- Show current tester state before bulk add or remove operations.

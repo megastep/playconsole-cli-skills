@@ -1,132 +1,86 @@
 ---
 name: gpc-release-flow
-description: End-to-end release workflows for Google Play — upload bundles, manage tracks, staged rollouts, promotions, and halts. Use when uploading builds or managing releases.
+description: End-to-end release workflows for Google Play — upload bundles, manage tracks, staged rollouts, promotions, halts, completions, and manual edits. Use when uploading builds or managing releases.
 ---
 
 # Release Flow
 
-Use this skill when you need to upload a build, publish to a track, promote between tracks, or manage rollouts.
+Use this skill for uploads, promotions, staged rollouts, and advanced edit control.
 
 ## Preconditions
 
-- Auth configured (`gpc doctor` passes).
-- New version code for each upload.
-- Always pass `--package` explicitly.
-
-## Upload and release
-
-### Upload AAB to a track
-
 ```bash
-gpc bundles upload --file app.aab --track internal --package com.example.app
+gpc doctor
+gpc tracks list
 ```
 
-### Upload with release notes and commit
+Assume the package comes from `--package`, a profile default, `GPC_PACKAGE`, or `.gpc.yaml`. Add `--package` only if needed.
+
+## Upload a bundle
 
 ```bash
-gpc bundles upload --file app.aab --track beta \
-  --release-notes "Bug fixes and improvements" \
+gpc bundles upload --file app.aab --track internal
+gpc bundles upload --file app.aab --track production --edit-mode=stage
+gpc bundles upload --file app.aab --track production --edit-mode=open
+```
+
+Release notes and production rollout on upload:
+
+```bash
+gpc bundles upload \
+  --file app.aab \
+  --track production \
+  --release-notes "Bug fixes and performance improvements" \
   --release-notes-lang en-US \
-  --commit \
-  --package com.example.app
+  --rollout 10
 ```
 
-### Upload with staged rollout
+`gpc bundles upload --rollout <n>` expects a percent from `0` to `100`.
+
+## Track operations
 
 ```bash
-gpc bundles upload --file app.aab --track production \
-  --rollout 0.1 \
-  --package com.example.app
+gpc tracks get --track production
+gpc tracks promote --from internal --to beta
+gpc tracks halt --track production
+gpc tracks complete --track production
 ```
 
-## Track management
-
-### List tracks
+For `gpc tracks update`, staged rollout requires both rollout percentage and `inProgress` status:
 
 ```bash
-gpc tracks list --package com.example.app
-```
-
-### Get track details
-
-```bash
-gpc tracks get --track production --package com.example.app
-```
-
-### Update track release
-
-```bash
-gpc tracks update --track production \
+gpc tracks update \
+  --track production \
   --version-code 42 \
-  --status completed \
-  --rollout-percentage 1.0 \
-  --package com.example.app
+  --status inProgress \
+  --rollout-percentage 10
 ```
 
-## Promote between tracks
-
-```bash
-gpc tracks promote --from internal --to beta --package com.example.app
-gpc tracks promote --from beta --to production \
-  --rollout-percentage 0.05 \
-  --package com.example.app
-```
-
-## Staged rollout
-
-### Gradual increase
-
-```bash
-gpc tracks update --track production --rollout-percentage 0.05 --package com.example.app
-gpc tracks update --track production --rollout-percentage 0.20 --package com.example.app
-gpc tracks update --track production --rollout-percentage 0.50 --package com.example.app
-```
-
-### Complete rollout (100%)
-
-```bash
-gpc tracks complete --track production --package com.example.app
-```
-
-### Halt rollout
-
-```bash
-gpc tracks halt --track production --package com.example.app
-```
+If you omit `--status inProgress`, the CLI defaults to `completed`.
 
 ## Manual edit lifecycle
 
-Use when you need precise control or multiple changes in one commit:
+Use manual edits only when you need to batch multiple edit-backed changes:
 
 ```bash
-# 1. Create edit session
-gpc edits create --package com.example.app
-
-# 2. Make changes (upload, update tracks, etc.)
-gpc bundles upload --file app.aab --package com.example.app
-
-# 3. Validate before committing
-gpc edits validate --edit-id $EDIT_ID --package com.example.app
-
-# 4. Commit all changes atomically
-gpc edits commit --edit-id $EDIT_ID --package com.example.app
+gpc edits create
+gpc listings sync --dir ./metadata --edit-mode=open
+gpc images sync --dir ./screenshots --edit-mode=open
+gpc edits validate --edit-id EDIT_ID
+gpc edits commit --edit-id EDIT_ID --edit-mode=stage
 ```
 
-## Wait for bundle processing
+## Processing and symbolication
 
 ```bash
-gpc bundles wait --version-code 42 --timeout 600 --interval 30 --package com.example.app
+gpc bundles find --version-code 42
+gpc bundles wait --version-code 42 --timeout 10m --interval 15s
+gpc deobfuscation upload --version-code 42 --file mapping.txt --type proguard
 ```
 
 ## Agent behavior
 
-- Always confirm the target track before uploading.
-- Use `--dry-run` when available for production releases.
-- Show `gpc tracks get --track <track>` output before and after changes.
-- For production, prefer staged rollout starting at 5% over full release.
-
-## Notes
-
-- Use `gpc tracks list` to discover available tracks (internal, alpha, beta, production, custom).
-- Release notes support `--release-notes-lang` for locale-specific notes.
-- `--commit` on upload auto-commits the edit; omit for manual edit lifecycle.
+- Prefer `bundles` over `apks`.
+- Prefer `--edit-mode` over legacy `--stage` or `--commit=false`.
+- Show current track state before changing production.
+- For production, prefer staged rollout over immediate 100% rollout unless the user asks otherwise.

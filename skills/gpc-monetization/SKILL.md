@@ -1,145 +1,55 @@
 ---
 name: gpc-monetization
-description: Manage in-app products, subscriptions, base plans, and subscription offers using gpc. Use when creating or updating monetization catalog.
+description: Manage one-time products, subscriptions, base plans, and subscription offers using gpc. Use when creating or updating the Play monetization catalog.
 ---
 
 # Monetization
 
-Use this skill when managing in-app products (one-time purchases), subscriptions, base plans, or subscription offers.
+Use this skill for product catalog work under `products`, `subscriptions`, and `offers`.
 
-## In-app products (one-time)
-
-### List products
+## One-time products
 
 ```bash
-gpc products list --package com.example.app
-gpc products list --page-size 50 --package com.example.app
+gpc products list
+gpc products get --product-id premium_unlock
+gpc products create --product-id coins_100 --file product.json
+gpc products create --product-id premium_unlock --title "Premium" --description "Unlock all features"
+gpc products update --product-id coins_100 --file product.json
+gpc products delete --product-id coins_100 --confirm
 ```
 
-### Get product details
+`gpc products list` supports pagination:
 
 ```bash
-gpc products get --product-id premium_upgrade --package com.example.app
+gpc products list --page-size 50
 ```
 
-### Create product
+## Subscriptions and base plans
 
 ```bash
-gpc products create --product-id premium_upgrade \
-  --title "Premium Upgrade" \
-  --description "Unlock all features" \
-  --package com.example.app
+gpc subscriptions list
+gpc subscriptions get --product-id monthly_pro
+gpc subscriptions create --product-id monthly_pro --file subscription.json
+gpc subscriptions base-plans list --product-id monthly_pro
+gpc subscriptions base-plans create --product-id monthly_pro --file baseplan.json
+gpc subscriptions pricing get --product-id monthly_pro --base-plan monthly
 ```
 
-### Create from JSON file
+## Offers
 
 ```bash
-gpc products create --product-id premium_upgrade --file product.json --package com.example.app
-```
-
-### Update product
-
-```bash
-gpc products update --product-id premium_upgrade \
-  --title "Premium Upgrade v2" \
-  --package com.example.app
-```
-
-### Delete product
-
-```bash
-gpc products delete --product-id premium_upgrade --confirm --package com.example.app
-```
-
-## Subscriptions
-
-### List subscriptions
-
-```bash
-gpc subscriptions list --package com.example.app
-gpc subscriptions list --max-results 100 --package com.example.app
-```
-
-### Get subscription
-
-```bash
-gpc subscriptions get --product-id monthly_pro --package com.example.app
-```
-
-### Create subscription
-
-```bash
-gpc subscriptions create --product-id monthly_pro --file subscription.json --package com.example.app
-```
-
-## Base plans
-
-### List base plans for a subscription
-
-```bash
-gpc subscriptions base-plans list --product-id monthly_pro --package com.example.app
-```
-
-### Create base plan
-
-```bash
-gpc subscriptions base-plans create --product-id monthly_pro --file baseplan.json --package com.example.app
-```
-
-### Get pricing
-
-```bash
-gpc subscriptions pricing get --product-id monthly_pro --base-plan p1m --package com.example.app
-```
-
-## Subscription offers
-
-### List offers
-
-```bash
-gpc offers list --product-id monthly_pro --base-plan p1m --package com.example.app
-```
-
-### Get offer details
-
-```bash
-gpc offers get --product-id monthly_pro --base-plan p1m --offer-id free_trial --package com.example.app
-```
-
-### Create offer
-
-```bash
-gpc offers create --product-id monthly_pro --base-plan p1m --file offer.json --package com.example.app
-```
-
-### Update offer
-
-```bash
-gpc offers update --product-id monthly_pro --base-plan p1m --offer-id free_trial --file offer.json --package com.example.app
-```
-
-### Activate / deactivate offer
-
-```bash
-gpc offers activate --product-id monthly_pro --base-plan p1m --offer-id free_trial --package com.example.app
-gpc offers deactivate --product-id monthly_pro --base-plan p1m --offer-id free_trial --package com.example.app
-```
-
-### Delete offer
-
-```bash
-gpc offers delete --product-id monthly_pro --base-plan p1m --offer-id free_trial --confirm --package com.example.app
+gpc offers list --product-id monthly_pro --base-plan monthly
+gpc offers get --product-id monthly_pro --base-plan monthly --offer-id free_trial
+gpc offers create --product-id monthly_pro --base-plan monthly --file offer.json
+gpc offers update --product-id monthly_pro --base-plan monthly --offer-id free_trial --file offer.json
+gpc offers activate --product-id monthly_pro --base-plan monthly --offer-id free_trial
+gpc offers deactivate --product-id monthly_pro --base-plan monthly --offer-id free_trial
+gpc offers delete --product-id monthly_pro --base-plan monthly --offer-id free_trial --confirm
 ```
 
 ## Agent behavior
 
-- Always list existing products/subscriptions before creating to avoid duplicates.
-- Confirm with user before deleting products (irreversible).
-- Use `--confirm` flag explicitly for destructive operations.
-- Show current state before and after updates.
-
-## Notes
-
-- Products and subscriptions require active base plans to be purchasable.
-- Use JSON files for complex product definitions with multiple fields.
-- Subscription hierarchy: Subscription → Base Plan → Offer.
+- List existing products or subscriptions before creating similar IDs.
+- Use JSON files for subscriptions, base plans, and offers.
+- Use `--confirm` explicitly for deletions.
+- Model the hierarchy correctly: subscription -> base plan -> offer.

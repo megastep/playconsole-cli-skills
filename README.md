@@ -8,7 +8,7 @@ Skills follow the [Agent Skills](https://github.com/anthropics/agent-skills) for
 
 ### gpc-cli-usage
 
-Guidance for running `gpc` commands — flags, output formats, auth profiles, and safety conventions.
+Guidance for running `gpc` commands — package resolution, profiles, project config, output formats, edit modes, and safety conventions.
 
 **Use when:**
 - You need the correct `gpc` command or flag combination
@@ -16,7 +16,7 @@ Guidance for running `gpc` commands — flags, output formats, auth profiles, an
 
 ### gpc-release-flow
 
-End-to-end release workflows — upload bundles, manage tracks, staged rollouts, promotions, and halts.
+End-to-end release workflows — upload bundles, manage tracks, staged rollouts, promotions, halts, completions, and manual edits.
 
 **Use when:**
 - You need to upload a build and release it
@@ -43,7 +43,7 @@ Manage in-app products, subscriptions, base plans, and subscription offers.
 
 ### gpc-testing
 
-Manage beta testing, internal test builds, tester groups, and internal app sharing.
+Manage testing tracks, testers, tester groups, and internal app sharing.
 
 **Use when:**
 - You need to set up testing workflows
@@ -52,7 +52,7 @@ Manage beta testing, internal test builds, tester groups, and internal app shari
 
 ### gpc-vitals
 
-Monitor Android Vitals — crashes, ANRs, startup time, rendering, wakeups, and memory.
+View vitals and grouped error-reporting commands — crashes, ANRs, startup, rendering, wakeups, wakelocks, memory, and issues.
 
 **Use when:**
 - You need to check app health and performance metrics
@@ -61,7 +61,7 @@ Monitor Android Vitals — crashes, ANRs, startup time, rendering, wakeups, and 
 
 ### gpc-build-lifecycle
 
-Manage app bundles, APKs, build processing, and debug symbol uploads.
+Manage app bundles, legacy APKs, build processing, and deobfuscation uploads.
 
 **Use when:**
 - You're uploading builds in a CI/CD pipeline
@@ -70,7 +70,7 @@ Manage app bundles, APKs, build processing, and debug symbol uploads.
 
 ### gpc-purchase-orders
 
-Verify purchases, check subscription status, process refunds, and manage external transactions.
+Verify purchases, inspect subscription status, process refunds, and manage external transactions.
 
 **Use when:**
 - You need to verify a purchase token
@@ -88,7 +88,7 @@ List, filter, and reply to Google Play reviews.
 
 ### gpc-team-access
 
-Manage team member access, roles, and permissions.
+Manage Play Console users, app grants, roles, and revocations.
 
 **Use when:**
 - You need to grant or revoke developer access
@@ -96,7 +96,7 @@ Manage team member access, roles, and permissions.
 
 ### gpc-app-recovery
 
-Create, deploy, and manage app recovery actions for critical issues.
+Create, target, deploy, and cancel app recovery actions for critical issues.
 
 **Use when:**
 - You're responding to a critical app issue
@@ -104,7 +104,7 @@ Create, deploy, and manage app recovery actions for critical issues.
 
 ### gpc-device-management
 
-Manage devices, device tiers, country availability, reports, and distribution settings.
+Manage country availability, device tiers, device catalog views, report metadata, and draft-vs-live summaries.
 
 **Use when:**
 - You need to manage country targeting
