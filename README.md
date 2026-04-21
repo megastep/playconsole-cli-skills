@@ -30,6 +30,7 @@ Sync and manage store listings, images, and screenshots.
 **Use when:**
 - You're updating store metadata or localizations
 - You need to upload screenshots or graphics
+- You want optional per-file image upload progress with `--progress`
 - You want to sync from a local directory structure
 
 ### gpc-monetization

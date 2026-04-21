@@ -28,6 +28,7 @@ gpc listings sync --dir ./metadata --edit-mode=open
 ```bash
 gpc images list --locale en-US --type phoneScreenshots
 gpc images upload --locale en-US --type phoneScreenshots --file screenshot1.png
+gpc images upload --locale en-US --type phoneScreenshots --file screenshot1.png --progress
 gpc images delete --locale en-US --type phoneScreenshots --id IMAGE_ID
 gpc images delete-all --locale en-US --type phoneScreenshots
 ```
@@ -36,11 +37,12 @@ Sync behavior:
 
 ```bash
 gpc images sync --dir ./screenshots
+gpc images sync --dir ./screenshots --progress
 gpc images sync --dir ./screenshots --replace
 gpc images sync --dir ./screenshots --edit-mode=stage
 ```
 
-`gpc images sync` appends by default. Use `--replace` to clear each discovered `locale/type` pair before upload.
+`gpc images upload` and `gpc images sync` support optional upload progress output via `--progress`. `gpc images sync` appends by default. Use `--replace` to clear each discovered `locale/type` pair before upload.
 
 ## Directory-driven workflow
 
